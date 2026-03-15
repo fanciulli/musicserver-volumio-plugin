@@ -1,0 +1,52 @@
+{
+  "page": {
+    "label": "PLUGIN_NAME",
+    "icon": "fa-server"
+  },
+  "sections": [
+    {
+      "id": "section_server",
+      "element": "section",
+      "label": "SERVER_SECTION",
+      "onSave": {
+        "type": "controller",
+        "endpoint": "music_service/musicserver",
+        "method": "saveServerSettings"
+      },
+      "saveButton": {
+        "label": "SAVE",
+        "data": ["protocol", "host", "port"]
+      },
+      "content": [
+        {
+          "id": "protocol",
+          "element": "select",
+          "label": "PROTOCOL",
+          "value": "http",
+          "options": [
+            {
+              "value": "http",
+              "label": "HTTP"
+            },
+            {
+              "value": "https",
+              "label": "HTTPS"
+            }
+          ]
+        },
+        {
+          "id": "host",
+          "element": "input",
+          "label": "HOST",
+          "value": "127.0.0.1"
+        },
+        {
+          "id": "port",
+          "element": "input",
+          "label": "PORT",
+          "value": "3000"
+        }
+      ]
+    }
+  ]
+}

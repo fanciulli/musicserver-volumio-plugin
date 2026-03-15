@@ -1,0 +1,18 @@
+{
+  "enabled": {
+    "type": "boolean",
+    "value": true
+  },
+  "protocol": {
+    "type": "string",
+    "value": "http"
+  },
+  "host": {
+    "type": "string",
+    "value": "192.168.0.136"
+  },
+  "port": {
+    "type": "number",
+    "value": 3000
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "musicserver",
+  "version": "0.1.0",
+  "description": "Volumio music_service plugin for browsing a remote Music Server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests specified\""
+  },
+  "author": "Massimiliano Fanciulli",
+  "license": "MIT",
+  "volumio_info": {
+    "prettyName": "Music Server",
+    "icon": "fa-server",
+    "plugin_type": "music_service",
+    "architectures": [
+      "amd64",
+      "i386",
+      "armhf",
+      "armel",
+      "armv6",
+      "armv7",
+      "armv8"
+    ],
+    "os": [
+      "buster",
+      "bullseye",
+      "bookworm"
+    ],
+    "details": "Browse a remote Music Server and play tracks through Volumio",
+    "changelog": "0.1.0 Initial version with remote browsing"
+  },
+  "engines": {
+    "node": ">=14",
+    "volumio": ">=3"
+  },
+  "dependencies": {
+    "fs-extra": "^11.2.0",
+    "kew": "^0.7.0",
+    "v-conf": "^1.4.2"
+  }
+}
