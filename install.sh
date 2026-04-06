@@ -2,6 +2,6 @@
 set -e
 
 echo "Installing Music Server plugin dependencies"
-npm install --production
+npm install --omit=dev
 
 echo "plugininstallend"

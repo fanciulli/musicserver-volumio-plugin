@@ -36,6 +36,7 @@
   "dependencies": {
     "fs-extra": "^11.2.0",
     "kew": "^0.7.0",
+    "undici": "5.29.0",
     "v-conf": "^1.4.2"
   }
 }
