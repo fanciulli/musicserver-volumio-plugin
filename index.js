@@ -7,6 +7,7 @@
  */
 var libQ = require("kew");
 var browse = require("./browse");
+var playback = require("./playback");
 var {
   serviceHumanReadableName,
   browseSource,
@@ -14,14 +15,24 @@ var {
 } = require("./constants");
 
 class MusicServerPlugin {
-  #context;
   #commandRouter;
   #browse;
+  #boundBrowseFun;
+  #boundExplodeUriFun;
+  #playback;
 
   constructor(context) {
-    this.#context = context;
     this.#commandRouter = context.coreCommand;
     this.#browse = new browse();
+    this.#boundBrowseFun = this.#browse.browse.bind(this.#browse);
+    this.#boundExplodeUriFun = this.#browse.explodeUri.bind(this.#browse);
+
+    const mpdPlugin = this.#commandRouter.pluginManager.getPlugin(
+      "music_service",
+      "mpd",
+    );
+
+    this.#playback = new playback(mpdPlugin, context.coreCommand);
   }
 
   onVolumioStart() {
@@ -43,6 +54,14 @@ class MusicServerPlugin {
   }
 
   handleBrowseUri(uri) {
+    return this.#checkUriAndExecute(uri, this.#boundBrowseFun);
+  }
+
+  explodeUri(uri) {
+    return this.#checkUriAndExecute(uri, this.#boundExplodeUriFun);
+  }
+
+  #checkUriAndExecute(uri, fun) {
     if (!uri.startsWith(serviceName)) {
       return libQ.reject(new Error("Unsupported URI: " + curUri));
     }
@@ -56,12 +75,91 @@ class MusicServerPlugin {
 
     var defer = libQ.defer();
 
-    this.#browse.browse(pluginUri).then(function (data) {
+    fun(pluginUri).then(function (data) {
       defer.resolve(data);
     });
 
     return defer.promise;
   }
+
+  clear() {
+    return this.#playback.clear();
+  }
+
+  pause() {
+    return this.#playback.pause();
+  }
+
+  stop() {
+    return this.#playback.stop();
+  }
+
+  resume() {
+    return this.#playback.resume();
+  }
+
+  clearAddPlayTrack(track) {
+    return this.#playback.clearAddPlayTrack(track);
+  }
+
+  remove(position) {
+    return this.#playback.remove(position);
+  }
+
+  next() {
+    return this.#playback.next();
+  }
+
+  previous() {
+    return this.#playback.previous();
+  }
+
+  seek(timepos) {
+    console.log("Seeking to " + timepos);
+    return this.#playback.seek(timepos);
+  }
+
+  random(randomcmd) {
+    this.#commandRouter.pushToastMessage(
+      "success",
+      "Random",
+      string == true
+        ? this.#commandRouter.getI18nString("COMMON.ON")
+        : this.#commandRouter.getI18nString("COMMON.OFF"),
+    );
+    return this.#playback.random(randomcmd);
+  }
+
+  repeat(repeatcmd) {
+    this.#commandRouter.pushToastMessage(
+      "success",
+      "Repeat",
+      string == true
+        ? this.#commandRouter.getI18nString("COMMON.ON")
+        : this.#commandRouter.getI18nString("COMMON.OFF"),
+    );
+    return this.#playback.repeat(repeatcmd);
+  }
+
+  clear() {
+    return this.#playback.clear();
+  }
+
+  /*search(query) {
+
+    var self=this;
+
+    var defer=libQ.defer();
+
+  defer.resolve(list);
+
+
+            }, function (err) {
+                self.logger.info('An error occurred while searching ' + err);
+            });
+        });
+
+    return defer.promise;*/
 }
 
 module.exports = MusicServerPlugin;

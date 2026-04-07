@@ -13,12 +13,46 @@ var {
 } = require("./constants");
 
 class MusicServerBrowse {
-  getServerBaseUrl() {
+  #getServerBaseUrl() {
     return "http://192.168.0.136:3000";
   }
 
   async browse(uri) {
-    const { body } = await request(this.getServerBaseUrl() + "/music/browse", {
+    const data = await this.#getDataForUri(uri);
+    const page = this.#renderBrowsePage(uri, data);
+    return page;
+  }
+
+  async explodeUri(uri) {
+    const songUUID = uri.substring(uri.lastIndexOf("/") + 1);
+    const encodedUri = encodeURI(uri);
+
+    const streamUrl =
+      this.#getServerBaseUrl() + "/music/stream?id=" + encodedUri;
+    const albumArt =
+      this.#getServerBaseUrl() + "/music/albumart?id=" + encodedUri;
+
+    const data = await this.#getDataForUri(uri);
+
+    const response = [
+      {
+        service: serviceName,
+        type: "track",
+        uri: streamUrl,
+        title: data[0].metadata.title,
+        name: data[0].metadata.title,
+        artist: data[0].metadata.artist,
+        album: data[0].metadata.album,
+        albumart: albumArt,
+      },
+    ];
+
+    console.log(response);
+    return response;
+  }
+
+  async #getDataForUri(uri) {
+    const { body } = await request(this.#getServerBaseUrl() + "/music/browse", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
@@ -26,9 +60,7 @@ class MusicServerBrowse {
       }),
     });
 
-    const data = await body.json();
-    const page = this.#renderBrowsePage(uri, data);
-    return page;
+    return await body.json();
   }
 
   #renderBrowsePage(curUri, items) {
@@ -60,7 +92,7 @@ class MusicServerBrowse {
     }
 
     const albumArt =
-      this.getServerBaseUrl() + "/music/albumart?id=" + encodeURI(item.id);
+      this.#getServerBaseUrl() + "/music/albumart?id=" + encodeURI(item.id);
 
     var metadata = item.metadata || {};
     if (item.type === "folder") {
