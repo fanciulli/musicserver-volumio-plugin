@@ -7,6 +7,7 @@
  */
 const serviceHumanReadableName = "Music Server";
 const serviceName = "musicserver";
+const serviceUriScheme = "filesystem-music-source://";
 
 const browseSource = {
   name: serviceHumanReadableName,
@@ -19,3 +20,4 @@ const browseSource = {
 module.exports.serviceHumanReadableName = serviceHumanReadableName;
 module.exports.browseSource = browseSource;
 module.exports.serviceName = serviceName;
+module.exports.serviceUriScheme = serviceUriScheme;

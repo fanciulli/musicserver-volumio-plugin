@@ -6,15 +6,19 @@
  * GitHub: https://github.com/fanciulli
  */
 var { request } = require("undici");
-var {
-  serviceHumanReadableName,
-  browseSource,
-  serviceName,
-} = require("./constants");
+var { serviceName } = require("./constants");
+var { toBrowseUri } = require("./utils");
 
 class MusicServerBrowse {
-  #getServerBaseUrl() {
-    return "http://192.168.0.136:3000";
+  #streamUrl;
+  #albumArt;
+  #browseUrl;
+
+  constructor(configuration) {
+    const baseServerUrl = configuration.getServerUrl();
+    this.#albumArt = baseServerUrl + "/music/albumart?id=";
+    this.#streamUrl = baseServerUrl + "/music/stream?id=";
+    this.#browseUrl = baseServerUrl + "/music/browse";
   }
 
   async browse(uri) {
@@ -24,35 +28,29 @@ class MusicServerBrowse {
   }
 
   async explodeUri(uri) {
-    const songUUID = uri.substring(uri.lastIndexOf("/") + 1);
-    const encodedUri = encodeURI(uri);
-
-    const streamUrl =
-      this.#getServerBaseUrl() + "/music/stream?id=" + encodedUri;
-    const albumArt =
-      this.#getServerBaseUrl() + "/music/albumart?id=" + encodedUri;
-
     const data = await this.#getDataForUri(uri);
 
-    const response = [
-      {
-        service: serviceName,
-        type: "track",
-        uri: streamUrl,
-        title: data[0].metadata.title,
-        name: data[0].metadata.title,
-        artist: data[0].metadata.artist,
-        album: data[0].metadata.album,
-        albumart: albumArt,
-      },
-    ];
-
-    console.log(response);
-    return response;
+    if (data && data.length > 0) {
+      return data.map((item) => {
+        const encodedUri = encodeURI(item.id);
+        return {
+          service: serviceName,
+          type: item.type,
+          uri: this.#streamUrl + encodedUri,
+          title: item.metadata.title,
+          name: item.metadata.title,
+          artist: item.metadata.artist,
+          album: item.metadata.album,
+          albumart: this.#albumArt + encodedUri,
+        };
+      });
+    } else {
+      return [];
+    }
   }
 
   async #getDataForUri(uri) {
-    const { body } = await request(this.#getServerBaseUrl() + "/music/browse", {
+    const { body } = await request(this.#browseUrl, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
@@ -91,8 +89,7 @@ class MusicServerBrowse {
       return null;
     }
 
-    const albumArt =
-      this.#getServerBaseUrl() + "/music/albumart?id=" + encodeURI(item.id);
+    const albumArt = this.#albumArt + encodeURI(item.id);
 
     var metadata = item.metadata || {};
     if (item.type === "folder") {
@@ -104,7 +101,7 @@ class MusicServerBrowse {
         year: metadata.year || "",
         album: metadata.album || "",
         icon: "fa fa-folder-open-o",
-        uri: "musicserver/" + item.id,
+        uri: toBrowseUri(item.id),
         albumart: albumArt,
       };
     }
@@ -119,7 +116,7 @@ class MusicServerBrowse {
         album: metadata.album || "",
         duration: metadata.duration || 0,
         albumart: albumArt,
-        uri: "musicserver/" + item.id,
+        uri: toBrowseUri(item.id),
       };
     }
 

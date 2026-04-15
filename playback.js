@@ -35,14 +35,11 @@ class MusicServerPlayback {
   }
 
   clearAddPlayTrack(track) {
-    console.log("Playing track", JSON.stringify(track["uri"]));
-
     const state = {
       title: track.title,
       artist: track.artist,
       album: track.album,
     };
-    //this.#commandRouter.servicePushState(state, serviceName);
     this.#commandRouter.stateMachine.setConsumeUpdateService(
       "mpd",
       true,
@@ -55,7 +52,6 @@ class MusicServerPlayback {
     const newSongUri = "filesystem-music-source://song/" + songUUID;
 
     const trackUri = sections[0] + "id=" + newSongUri;
-    console.log("Transformed track URI", trackUri);
 
     return this.#mpdPlugin.sendMpdCommandArray([
       { command: "clear", parameters: [] },

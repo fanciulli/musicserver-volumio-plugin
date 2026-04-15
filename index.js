@@ -8,6 +8,8 @@
 var libQ = require("kew");
 var browse = require("./browse");
 var playback = require("./playback");
+var search = require("./search");
+var configuration = require("./config");
 var {
   serviceHumanReadableName,
   browseSource,
@@ -20,10 +22,14 @@ class MusicServerPlugin {
   #boundBrowseFun;
   #boundExplodeUriFun;
   #playback;
+  #search;
+  #configuration;
 
   constructor(context) {
+    this.#configuration = new configuration();
+
     this.#commandRouter = context.coreCommand;
-    this.#browse = new browse();
+    this.#browse = new browse(this.#configuration);
     this.#boundBrowseFun = this.#browse.browse.bind(this.#browse);
     this.#boundExplodeUriFun = this.#browse.explodeUri.bind(this.#browse);
 
@@ -33,6 +39,7 @@ class MusicServerPlugin {
     );
 
     this.#playback = new playback(mpdPlugin, context.coreCommand);
+    this.#search = new search(this.#configuration);
   }
 
   onVolumioStart() {
@@ -63,7 +70,7 @@ class MusicServerPlugin {
 
   #checkUriAndExecute(uri, fun) {
     if (!uri.startsWith(serviceName)) {
-      return libQ.reject(new Error("Unsupported URI: " + curUri));
+      return libQ.reject(new Error("Unsupported URI: " + uri));
     }
 
     var pluginUri = "";
@@ -115,7 +122,6 @@ class MusicServerPlugin {
   }
 
   seek(timepos) {
-    console.log("Seeking to " + timepos);
     return this.#playback.seek(timepos);
   }
 
@@ -145,21 +151,15 @@ class MusicServerPlugin {
     return this.#playback.clear();
   }
 
-  /*search(query) {
+  search(query) {
+    var defer = libQ.defer();
 
-    var self=this;
+    this.#search.search(query).then(function (data) {
+      defer.resolve(data);
+    });
 
-    var defer=libQ.defer();
-
-  defer.resolve(list);
-
-
-            }, function (err) {
-                self.logger.info('An error occurred while searching ' + err);
-            });
-        });
-
-    return defer.promise;*/
+    return defer.promise;
+  }
 }
 
 module.exports = MusicServerPlugin;
