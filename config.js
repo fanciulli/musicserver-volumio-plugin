@@ -6,16 +6,53 @@
  * GitHub: https://github.com/fanciulli
  */
 class Configuration {
-  #serverIp;
-  #serverPort;
+  #config;
 
-  constructor() {
-    this.#serverIp = "192.168.0.136";
-    this.#serverPort = "3000";
+  constructor(context) {
+    var configFile = context.coreCommand.pluginManager.getConfigurationFile(
+      context,
+      "config.json",
+    );
+
+    this.#config = new (require("v-conf"))();
+    this.#config.loadFile(configFile);
   }
 
   getServerUrl() {
-    return "http://" + this.#serverIp + ":" + this.#serverPort;
+    return (
+      this.#config.get("protocol") +
+      "://" +
+      this.#config.get("host") +
+      ":" +
+      this.#config.get("port")
+    );
+  }
+
+  getHost() {
+    return this.#config.get("host");
+  }
+
+  getPort() {
+    return this.#config.get("port");
+  }
+
+  getProtocol() {
+    return this.#config.get("protocol");
+  }
+
+  setHost(host) {
+    this.#config.set("host", host);
+    this.#config.save();
+  }
+
+  setPort(port) {
+    this.#config.set("port", port);
+    this.#config.save();
+  }
+
+  setProtocol(protocol) {
+    this.#config.set("protocol", protocol);
+    this.#config.save();
   }
 }
 

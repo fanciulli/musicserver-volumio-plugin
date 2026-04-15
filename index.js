@@ -26,9 +26,10 @@ class MusicServerPlugin {
   #configuration;
 
   constructor(context) {
-    this.#configuration = new configuration();
+    this.#configuration = new configuration(context);
 
     this.#commandRouter = context.coreCommand;
+
     this.#browse = new browse(this.#configuration);
     this.#boundBrowseFun = this.#browse.browse.bind(this.#browse);
     this.#boundExplodeUriFun = this.#browse.explodeUri.bind(this.#browse);
@@ -58,6 +59,48 @@ class MusicServerPlugin {
 
   getConfigurationFiles() {
     return ["config.json"];
+  }
+
+  getUIConfig() {
+    var defer = libQ.defer();
+    var langCode = this.#commandRouter.sharedVars.get("language_code");
+
+    const protocol = this.#configuration.getProtocol();
+    const protocolLabel = protocol === "http" ? "HTTP" : "HTTPS";
+    const host = this.#configuration.getHost();
+    const port = this.#configuration.getPort();
+
+    this.#commandRouter
+      .i18nJson(
+        __dirname + "/i18n/strings_" + langCode + ".json",
+        __dirname + "/i18n/strings_en.json",
+        __dirname + "/UIConfig.json",
+      )
+      .then(function (uiconf) {
+        uiconf.sections[0].content[0].value.value = protocol;
+        uiconf.sections[0].content[0].value.label = protocolLabel;
+        uiconf.sections[0].content[1].value = host;
+        uiconf.sections[0].content[2].value = port;
+        defer.resolve(uiconf);
+      })
+      .fail(function (error) {
+        defer.reject(error);
+      });
+
+    return defer.promise;
+  }
+
+  saveServerSettings(data) {
+    this.#configuration.setProtocol(data.protocol.value);
+    this.#configuration.setHost(data.host);
+    this.#configuration.setPort(parseInt(data.port, 10));
+
+    this.#commandRouter.pushToastMessage(
+      "success",
+      "Music Server",
+      "Configuration saved",
+    );
+    return libQ.resolve();
   }
 
   handleBrowseUri(uri) {

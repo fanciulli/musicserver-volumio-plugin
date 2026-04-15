@@ -1,28 +1,28 @@
 {
   "page": {
-    "label": "PLUGIN_NAME",
+    "label": "TRANSLATE.PLUGIN_NAME",
     "icon": "fa-server"
   },
   "sections": [
     {
       "id": "section_server",
       "element": "section",
-      "label": "SERVER_SECTION",
+      "label": "TRANSLATE.SERVER_SECTION",
       "onSave": {
         "type": "controller",
         "endpoint": "music_service/musicserver",
         "method": "saveServerSettings"
       },
       "saveButton": {
-        "label": "SAVE",
+        "label": "TRANSLATE.SAVE",
         "data": ["protocol", "host", "port"]
       },
       "content": [
         {
           "id": "protocol",
           "element": "select",
-          "label": "PROTOCOL",
-          "value": "http",
+          "label": "TRANSLATE.PROTOCOL",
+          "value": { "value": "http", "label": "HTTP" },
           "options": [
             {
               "value": "http",
@@ -37,13 +37,13 @@
         {
           "id": "host",
           "element": "input",
-          "label": "HOST",
+          "label": "TRANSLATE.HOST",
           "value": "127.0.0.1"
         },
         {
           "id": "port",
           "element": "input",
-          "label": "PORT",
+          "label": "TRANSLATE.PORT",
           "value": "3000"
         }
       ]

@@ -1,6 +1,6 @@
 {
   "PLUGIN_NAME": "Music Server",
-  "SERVER_SECTION": "Impostazioni server remoto",
+  "SERVER_SECTION": "Impostazioni di connessione",
   "PROTOCOL": "Protocollo",
   "HOST": "Host",
   "PORT": "Porta",

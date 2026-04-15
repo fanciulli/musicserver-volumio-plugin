@@ -9,13 +9,18 @@ const { request } = require("undici");
 const { serviceHumanReadableName, serviceName } = require("./constants");
 
 class MusicServerSearch {
-  #searchUrl;
-  #albumArtUrl;
+  #configuration;
 
   constructor(configuration) {
-    const serverUrl = configuration.getServerUrl();
-    this.#searchUrl = serverUrl + "/music/search";
-    this.#albumArtUrl = serverUrl + "/music/albumart?id=";
+    this.#configuration = configuration;
+  }
+
+  #getSearchUrl() {
+    return this.#configuration.getServerUrl() + "/music/search";
+  }
+
+  #getAlbumArtUrl() {
+    return this.#configuration.getServerUrl() + "/music/albumart?id=";
   }
 
   async search(query) {
@@ -43,7 +48,7 @@ class MusicServerSearch {
             type: "folder",
             title: artist.metadata.name,
             uri: serviceName + "/" + artist.id,
-            albumart: this.#albumArtUrl + encodeURI(artist.id),
+            albumart: this.#getAlbumArtUrl() + encodeURI(artist.id),
           })),
         });
       }
@@ -58,7 +63,7 @@ class MusicServerSearch {
             title: album.metadata.name,
             artist: album.metadata.artist,
             uri: serviceName + "/" + album.id,
-            albumart: this.#albumArtUrl + encodeURI(album.id),
+            albumart: this.#getAlbumArtUrl() + encodeURI(album.id),
           })),
         });
       }
@@ -75,7 +80,7 @@ class MusicServerSearch {
             album: song.metadata.album,
             name: song.metadata.name,
             uri: serviceName + "/" + song.id,
-            albumart: this.#albumArtUrl + encodeURI(song.id),
+            albumart: this.#getAlbumArtUrl() + encodeURI(song.id),
           })),
         });
       }
@@ -85,7 +90,7 @@ class MusicServerSearch {
   }
 
   async #searchCategory(query, category) {
-    const { body } = await request(this.#searchUrl, {
+    const { body } = await request(this.#getSearchUrl(), {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({

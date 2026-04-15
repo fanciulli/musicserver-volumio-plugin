@@ -10,15 +10,22 @@ var { serviceName } = require("./constants");
 var { toBrowseUri } = require("./utils");
 
 class MusicServerBrowse {
-  #streamUrl;
-  #albumArt;
-  #browseUrl;
+  #configuration;
 
   constructor(configuration) {
-    const baseServerUrl = configuration.getServerUrl();
-    this.#albumArt = baseServerUrl + "/music/albumart?id=";
-    this.#streamUrl = baseServerUrl + "/music/stream?id=";
-    this.#browseUrl = baseServerUrl + "/music/browse";
+    this.#configuration = configuration;
+  }
+
+  #getStreamUrl() {
+    return this.#configuration.getServerUrl() + "/music/stream?id=";
+  }
+
+  #getAlbumArtUrl() {
+    return this.#configuration.getServerUrl() + "/music/albumart?id=";
+  }
+
+  #getBrowseUrl() {
+    return this.#configuration.getServerUrl() + "/music/browse";
   }
 
   async browse(uri) {
@@ -36,12 +43,12 @@ class MusicServerBrowse {
         return {
           service: serviceName,
           type: item.type,
-          uri: this.#streamUrl + encodedUri,
+          uri: this.#getStreamUrl() + encodedUri,
           title: item.metadata.title,
           name: item.metadata.title,
           artist: item.metadata.artist,
           album: item.metadata.album,
-          albumart: this.#albumArt + encodedUri,
+          albumart: this.#getAlbumArtUrl() + encodedUri,
         };
       });
     } else {
@@ -50,7 +57,7 @@ class MusicServerBrowse {
   }
 
   async #getDataForUri(uri) {
-    const { body } = await request(this.#browseUrl, {
+    const { body } = await request(this.#getBrowseUrl(), {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
@@ -89,7 +96,7 @@ class MusicServerBrowse {
       return null;
     }
 
-    const albumArt = this.#albumArt + encodeURI(item.id);
+    const albumArt = this.#getAlbumArtUrl() + encodeURI(item.id);
 
     var metadata = item.metadata || {};
     if (item.type === "folder") {
