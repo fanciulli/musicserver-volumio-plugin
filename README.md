@@ -1,34 +1,26 @@
-# Music Server Volumio Plugin
+### Volumio plugin
 
-Plugin `music_service` per Volumio che integra il browsing di un server remoto compatibile con l'API del progetto locale `musicserver`.
+The Music Server has Rest APIs that you can use to browse content, search by text and stream songs. If you plan to use with Volumio connect to it via SSH and perform the following:
 
-## Funzionalità implementate
+```
+cd /data/plugins/music_service
+git clone https://github.com/fanciulli/musicserver-volumio-plugin.git musicserver
+cd musicserver
+npm install
+```
 
-- Aggiunta sorgente in Browse come **Music Server**
-- Browsing remoto via `POST /browse`
-- Mapping cartelle / brani nella UI Volumio
-- Supporto `explodeUri` per tracce con stream da `GET /stream?id=...`
-- Configurazione host / porta / protocollo da UI plugin
+Now edit the file `plugins.json` under /data/plugins in order to add the following under the field `music_service`:
 
-## Endpoint remoto atteso
+```
+"musciserver": {
+     		"enabled": {
+        	"type": "boolean",
+        	"value": true
+      	}
+```
 
-Il server remoto deve esporre:
+Restart Volumio. In Volumio UI go to Plugins > Music Server and click on `Settings`. The configuration page is shown. Update it based on your current environment:
 
-- `POST /browse` con body JSON `{ "path": "/" | "<remote-id>" }`
-- `GET /stream?id=<remote-song-id>`
+![Plugin Settings on Volumio](./media/plugin_settings_on_volumio.png)
 
-## Configurazione di default
-
-- protocol: `http`
-- host: `127.0.0.1`
-- port: `3000`
-
-Puoi modificare i valori dal pannello impostazioni del plugin in Volumio.
-
-## Note installazione
-
-Questo repository è pronto come sorgente plugin; in Volumio la struttura prevista è:
-
-`music_service/musicserver/`
-
-con i file mandatory (`index.js`, `package.json`, `config.json`, `install.sh`, `uninstall.sh`).
+Restart Volumio. The Browse shall now show a new source.
