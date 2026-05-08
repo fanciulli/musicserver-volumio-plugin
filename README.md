@@ -9,7 +9,7 @@ cd musicserver
 npm install
 ```
 
-Now edit the file `plugins.json` under /data/plugins in order to add the following under the field `music_service`:
+Now edit the file `plugins.json` under /data/configuration in order to add the following under the field `music_service`:
 
 ```
 "musciserver": {
