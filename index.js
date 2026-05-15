@@ -104,14 +104,18 @@ class MusicServerPlugin {
   }
 
   handleBrowseUri(uri) {
-    return this.#checkUriAndExecute(uri, this.#boundBrowseFun);
+    return this.#checkUriAndExecute(
+      uri,
+      this.#boundBrowseFun,
+      (pluginUri) => this.#browse.getEmptyBrowsePage(pluginUri),
+    );
   }
 
   explodeUri(uri) {
-    return this.#checkUriAndExecute(uri, this.#boundExplodeUriFun);
+    return this.#checkUriAndExecute(uri, this.#boundExplodeUriFun, () => []);
   }
 
-  #checkUriAndExecute(uri, fun) {
+  #checkUriAndExecute(uri, fun, fallbackFun) {
     if (!uri.startsWith(serviceName)) {
       return libQ.reject(new Error("Unsupported URI: " + uri));
     }
@@ -125,11 +129,31 @@ class MusicServerPlugin {
 
     var defer = libQ.defer();
 
-    fun(pluginUri).then(function (data) {
-      defer.resolve(data);
-    });
+    Promise.resolve(fun(pluginUri))
+      .then(function (data) {
+        defer.resolve(data);
+      })
+      .catch((error) => {
+        this.#notifyBrowseError(error);
+        defer.resolve(fallbackFun(pluginUri));
+      });
 
     return defer.promise;
+  }
+
+  #notifyBrowseError(error) {
+    if (this.#commandRouter && this.#commandRouter.logger) {
+      this.#commandRouter.logger.error(
+        "Music Server: browse request failed",
+        error,
+      );
+    }
+
+    this.#commandRouter.pushToastMessage(
+      "error",
+      "Music Server",
+      "Unable to reach Music Server. Please check connection settings and try again.",
+    );
   }
 
   clear() {

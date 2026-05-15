@@ -56,6 +56,10 @@ class MusicServerBrowse {
     }
   }
 
+  getEmptyBrowsePage(uri) {
+    return this.#renderBrowsePage(uri, []);
+  }
+
   async #getDataForUri(uri) {
     const { body } = await request(this.#getBrowseUrl(), {
       method: "POST",
