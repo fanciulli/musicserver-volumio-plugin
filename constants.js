@@ -17,7 +17,10 @@ const browseSource = {
   albumart: "/albumart?sourceicon=music_service/musicserver/musicserver.svg",
 };
 
+class UnauthorizedError extends Error {}
+
 module.exports.serviceHumanReadableName = serviceHumanReadableName;
 module.exports.browseSource = browseSource;
 module.exports.serviceName = serviceName;
 module.exports.serviceUriScheme = serviceUriScheme;
+module.exports.UnauthorizedError = UnauthorizedError;

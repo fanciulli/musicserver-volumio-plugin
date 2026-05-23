@@ -4,5 +4,8 @@
   "PROTOCOL": "Protocollo",
   "HOST": "Host",
   "PORT": "Porta",
-  "SAVE": "Salva"
+  "API_KEY": "Chiave API",
+  "SAVE": "Salva",
+  "INVALID_API_KEY_TITLE": "Music Server",
+  "INVALID_API_KEY_MESSAGE": "API key non valida. Controlla la configurazione del plugin."
 }

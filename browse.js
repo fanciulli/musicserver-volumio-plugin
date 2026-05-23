@@ -6,7 +6,7 @@
  * GitHub: https://github.com/fanciulli
  */
 var { request } = require("undici");
-var { serviceName } = require("./constants");
+var { serviceName, UnauthorizedError } = require("./constants");
 var { toBrowseUri } = require("./utils");
 
 class MusicServerBrowse {
@@ -57,13 +57,20 @@ class MusicServerBrowse {
   }
 
   async #getDataForUri(uri) {
-    const { body } = await request(this.#getBrowseUrl(), {
+    const { statusCode, body } = await request(this.#getBrowseUrl(), {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": this.#configuration.getApiKey(),
+      },
       body: JSON.stringify({
         path: uri,
       }),
     });
+
+    if (statusCode === 401) {
+      throw new UnauthorizedError();
+    }
 
     return await body.json();
   }

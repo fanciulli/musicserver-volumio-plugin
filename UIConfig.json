@@ -15,7 +15,7 @@
       },
       "saveButton": {
         "label": "TRANSLATE.SAVE",
-        "data": ["protocol", "host", "port"]
+        "data": ["protocol", "host", "port", "apiKey"]
       },
       "content": [
         {
@@ -45,6 +45,12 @@
           "element": "input",
           "label": "TRANSLATE.PORT",
           "value": "3000"
+        },
+        {
+          "id": "apiKey",
+          "element": "input",
+          "label": "TRANSLATE.API_KEY",
+          "value": ""
         }
       ]
     }

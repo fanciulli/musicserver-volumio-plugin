@@ -14,6 +14,7 @@ var {
   serviceHumanReadableName,
   browseSource,
   serviceName,
+  UnauthorizedError,
 } = require("./constants");
 
 class MusicServerPlugin {
@@ -24,6 +25,7 @@ class MusicServerPlugin {
   #playback;
   #search;
   #configuration;
+  #i18nStrings = {};
 
   constructor(context) {
     this.#configuration = new configuration(context);
@@ -48,6 +50,12 @@ class MusicServerPlugin {
   }
 
   onStart() {
+    const langCode = this.#commandRouter.sharedVars.get("language_code");
+    try {
+      this.#i18nStrings = require(`./i18n/strings_${langCode}.json`);
+    } catch {
+      this.#i18nStrings = require("./i18n/strings_en.json");
+    }
     this.#commandRouter.volumioAddToBrowseSources(browseSource);
     return libQ.resolve();
   }
@@ -70,6 +78,8 @@ class MusicServerPlugin {
     const host = this.#configuration.getHost();
     const port = this.#configuration.getPort();
 
+    const apiKey = this.#configuration.getApiKey();
+
     this.#commandRouter
       .i18nJson(
         __dirname + "/i18n/strings_" + langCode + ".json",
@@ -81,6 +91,7 @@ class MusicServerPlugin {
         uiconf.sections[0].content[0].value.label = protocolLabel;
         uiconf.sections[0].content[1].value = host;
         uiconf.sections[0].content[2].value = port;
+        uiconf.sections[0].content[3].value = apiKey;
         defer.resolve(uiconf);
       })
       .fail(function (error) {
@@ -94,6 +105,7 @@ class MusicServerPlugin {
     this.#configuration.setProtocol(data.protocol.value);
     this.#configuration.setHost(data.host);
     this.#configuration.setPort(parseInt(data.port, 10));
+    this.#configuration.setApiKey(data.apiKey);
 
     this.#commandRouter.pushToastMessage(
       "success",
@@ -123,13 +135,31 @@ class MusicServerPlugin {
       pluginUri = uri.substring(serviceName.length + 1);
     }
 
+    var self = this;
     var defer = libQ.defer();
 
-    fun(pluginUri).then(function (data) {
-      defer.resolve(data);
-    });
+    fun(pluginUri)
+      .then(function (data) {
+        defer.resolve(data);
+      })
+      .catch(function (err) {
+        if (err instanceof UnauthorizedError) {
+          self.#showInvalidApiKeyToast();
+          defer.resolve({ navigation: { lists: [], prev: { uri: pluginUri } } });
+        } else {
+          defer.reject(err);
+        }
+      });
 
     return defer.promise;
+  }
+
+  #showInvalidApiKeyToast() {
+    this.#commandRouter.pushToastMessage(
+      "error",
+      this.#i18nStrings.INVALID_API_KEY_TITLE,
+      this.#i18nStrings.INVALID_API_KEY_MESSAGE,
+    );
   }
 
   clear() {
@@ -195,11 +225,22 @@ class MusicServerPlugin {
   }
 
   search(query) {
+    var self = this;
     var defer = libQ.defer();
 
-    this.#search.search(query).then(function (data) {
-      defer.resolve(data);
-    });
+    this.#search
+      .search(query)
+      .then(function (data) {
+        defer.resolve(data);
+      })
+      .catch(function (err) {
+        if (err instanceof UnauthorizedError) {
+          self.#showInvalidApiKeyToast();
+          defer.resolve([]);
+        } else {
+          defer.reject(err);
+        }
+      });
 
     return defer.promise;
   }
