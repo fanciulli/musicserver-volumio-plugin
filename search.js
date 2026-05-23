@@ -6,7 +6,7 @@
  * GitHub: https://github.com/fanciulli
  */
 const { request } = require("undici");
-const { serviceHumanReadableName, serviceName } = require("./constants");
+const { serviceHumanReadableName, serviceName, UnauthorizedError } = require("./constants");
 
 class MusicServerSearch {
   #configuration;
@@ -90,14 +90,21 @@ class MusicServerSearch {
   }
 
   async #searchCategory(query, category) {
-    const { body } = await request(this.#getSearchUrl(), {
+    const { statusCode, body } = await request(this.#getSearchUrl(), {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": this.#configuration.getApiKey(),
+      },
       body: JSON.stringify({
         query: query,
         category: category,
       }),
     });
+
+    if (statusCode === 401) {
+      throw new UnauthorizedError();
+    }
 
     return await body.json();
   }

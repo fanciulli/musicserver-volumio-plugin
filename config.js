@@ -54,6 +54,15 @@ class Configuration {
     this.#config.set("protocol", protocol);
     this.#config.save();
   }
+
+  getApiKey() {
+    return this.#config.get("apiKey");
+  }
+
+  setApiKey(apiKey) {
+    this.#config.set("apiKey", apiKey);
+    this.#config.save();
+  }
 }
 
 module.exports = Configuration;

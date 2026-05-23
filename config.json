@@ -10,5 +10,9 @@
   "port": {
     "type": "number",
     "value": 3000
+  },
+  "apiKey": {
+    "type": "string",
+    "value": ""
   }
 }
