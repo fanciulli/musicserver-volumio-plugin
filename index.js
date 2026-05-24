@@ -41,7 +41,11 @@ class MusicServerPlugin {
       "mpd",
     );
 
-    this.#playback = new playback(mpdPlugin, context.coreCommand);
+    this.#playback = new playback(
+      mpdPlugin,
+      context.coreCommand,
+      this.#configuration,
+    );
     this.#search = new search(this.#configuration);
   }
 
@@ -145,7 +149,9 @@ class MusicServerPlugin {
       .catch(function (err) {
         if (err instanceof UnauthorizedError) {
           self.#showInvalidApiKeyToast();
-          defer.resolve({ navigation: { lists: [], prev: { uri: pluginUri } } });
+          defer.resolve({
+            navigation: { lists: [], prev: { uri: pluginUri } },
+          });
         } else {
           defer.reject(err);
         }
