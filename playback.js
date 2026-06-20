@@ -10,10 +10,12 @@ const { serviceName } = require("./constants");
 class MusicServerPlayback {
   #mpdPlugin;
   #commandRouter;
+  #configuration;
 
-  constructor(mpdPlugin, commandRouter) {
+  constructor(mpdPlugin, commandRouter, configuration) {
     this.#mpdPlugin = mpdPlugin;
     this.#commandRouter = commandRouter;
+    this.#configuration = configuration;
   }
 
   clear() {
@@ -46,16 +48,12 @@ class MusicServerPlayback {
       false,
     );
 
-    const sections = track["uri"].split("id=");
-    const oldSongUri = sections[1];
-    const songUUID = oldSongUri.substring(oldSongUri.lastIndexOf("/") + 1);
-    const newSongUri = "filesystem-music-source://song/" + songUUID;
-
-    const trackUri = sections[0] + "id=" + newSongUri;
+    const trackUri =
+      track["uri"] + "&x-api-key=" + this.#configuration.getApiKey();
 
     return this.#mpdPlugin.sendMpdCommandArray([
       { command: "clear", parameters: [] },
-      { command: "add", parameters: [track["uri"]] },
+      { command: "add", parameters: [trackUri] },
       { command: "play", parameters: [] },
     ]);
   }
