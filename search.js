@@ -5,10 +5,11 @@
  *
  * GitHub: https://github.com/fanciulli
  */
-const { request, Agent } = require("undici");
+const { request } = require("undici");
 const {
   serviceHumanReadableName,
   serviceName,
+  musicProxyPort,
   UnauthorizedError,
 } = require("./constants");
 
@@ -20,11 +21,11 @@ class MusicServerSearch {
   }
 
   #getSearchUrl() {
-    return this.#configuration.getServerUrl() + "/music/search";
+    return `http://localhost:${musicProxyPort}/music/search`;
   }
 
   #getAlbumArtUrl() {
-    return this.#configuration.getServerUrl() + "/music/albumart?id=";
+    return `http://localhost:${musicProxyPort}/music/albumart?id=`;
   }
 
   async search(query) {
@@ -98,16 +99,10 @@ class MusicServerSearch {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "x-api-key": this.#configuration.getApiKey(),
       },
       body: JSON.stringify({
         query: query,
         category: category,
-      }),
-      dispatcher: new Agent({
-        connect: {
-          rejectUnauthorized: false,
-        },
       }),
     });
 

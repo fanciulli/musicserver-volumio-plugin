@@ -5,7 +5,7 @@
  *
  * GitHub: https://github.com/fanciulli
  */
-var { request, Agent } = require("undici");
+var { request } = require("undici");
 var { serviceName, musicProxyPort, UnauthorizedError } = require("./constants");
 var { toBrowseUri } = require("./utils");
 
@@ -25,7 +25,7 @@ class MusicServerBrowse {
   }
 
   #getBrowseUrl() {
-    return this.#configuration.getServerUrl() + "/music/browse";
+    return `http://localhost:${musicProxyPort}/music/browse`;
   }
 
   async browse(uri) {
@@ -61,15 +61,9 @@ class MusicServerBrowse {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "x-api-key": this.#configuration.getApiKey(),
       },
       body: JSON.stringify({
         path: uri,
-      }),
-      dispatcher: new Agent({
-        connect: {
-          rejectUnauthorized: false,
-        },
       }),
     });
 
