@@ -35,7 +35,7 @@ const run = (configuration, logger) => {
   cache.define("albumart", async (url) => {
     const { statusCode, headers, body } = await request(url, {
       method: "GET",
-      headers: { HEADER_API_KEY: configuration.getApiKey() },
+      headers: { [HEADER_API_KEY]: configuration.getApiKey() },
       dispatcher: sharedAgent,
     });
 
@@ -51,7 +51,7 @@ const run = (configuration, logger) => {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          HEADER_API_KEY: configuration.getApiKey(),
+          [HEADER_API_KEY]: configuration.getApiKey(),
         },
         body: JSON.stringify({ path }),
         dispatcher: sharedAgent,
@@ -71,7 +71,7 @@ const run = (configuration, logger) => {
           method: "POST",
           headers: {
             "content-type": "application/json",
-            HEADER_API_KEY: configuration.getApiKey(),
+            [HEADER_API_KEY]: configuration.getApiKey(),
           },
           body: JSON.stringify({ query, category }),
           dispatcher: sharedAgent,
@@ -91,7 +91,7 @@ const run = (configuration, logger) => {
       const urlPart = req.url.substring(req.url.indexOf("/music"));
       const serverFullUrl = `${configuration.getServerUrl()}${urlPart}`;
 
-      const reqHeaders = { HEADER_API_KEY: configuration.getApiKey() };
+      const reqHeaders = { [HEADER_API_KEY]: configuration.getApiKey() };
       if (req.headers["range"]) {
         reqHeaders["range"] = req.headers["range"];
       }
