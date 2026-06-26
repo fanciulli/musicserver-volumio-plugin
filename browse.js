@@ -5,8 +5,8 @@
  *
  * GitHub: https://github.com/fanciulli
  */
-var { request } = require("undici");
-var { serviceName, UnauthorizedError } = require("./constants");
+var { request, Agent } = require("undici");
+var { serviceName, musicProxyPort, UnauthorizedError } = require("./constants");
 var { toBrowseUri } = require("./utils");
 
 class MusicServerBrowse {
@@ -17,11 +17,11 @@ class MusicServerBrowse {
   }
 
   #getStreamUrl() {
-    return this.#configuration.getServerUrl() + "/music/stream?id=";
+    return `http://localhost:${musicProxyPort}/music/stream?id=`;
   }
 
   #getAlbumArtUrl() {
-    return this.#configuration.getServerUrl() + "/music/albumart?id=";
+    return `http://localhost:${musicProxyPort}/music/albumart?id=`;
   }
 
   #getBrowseUrl() {
@@ -65,6 +65,11 @@ class MusicServerBrowse {
       },
       body: JSON.stringify({
         path: uri,
+      }),
+      dispatcher: new Agent({
+        connect: {
+          rejectUnauthorized: false,
+        },
       }),
     });
 

@@ -10,6 +10,7 @@ var browse = require("./browse");
 var playback = require("./playback");
 var search = require("./search");
 var configuration = require("./config");
+var proxy = require("./musicProxy");
 var {
   serviceHumanReadableName,
   browseSource,
@@ -26,9 +27,13 @@ class MusicServerPlugin {
   #search;
   #configuration;
   #i18nStrings = {};
+  #musicProxy;
+  #logger;
 
   constructor(context) {
     this.#configuration = new configuration(context);
+
+    this.#logger = context.logger;
 
     this.#commandRouter = context.coreCommand;
 
@@ -41,11 +46,7 @@ class MusicServerPlugin {
       "mpd",
     );
 
-    this.#playback = new playback(
-      mpdPlugin,
-      context.coreCommand,
-      this.#configuration,
-    );
+    this.#playback = new playback(context, mpdPlugin);
     this.#search = new search(this.#configuration);
   }
 
@@ -54,6 +55,8 @@ class MusicServerPlugin {
   }
 
   onStart() {
+    this.#musicProxy = proxy.run(this.#configuration, this.#logger);
+
     const langCode = this.#commandRouter.sharedVars.get("language_code");
     try {
       this.#i18nStrings = require(`./i18n/strings_${langCode}.json`);
@@ -65,6 +68,10 @@ class MusicServerPlugin {
   }
 
   onStop() {
+    if (this.#musicProxy) {
+      proxy.kill(this.#musicProxy);
+    }
+
     this.#commandRouter.volumioRemoveToBrowseSources(serviceHumanReadableName);
     return libQ.resolve();
   }
@@ -208,7 +215,7 @@ class MusicServerPlugin {
     this.#commandRouter.pushToastMessage(
       "success",
       "Random",
-      string == true
+      randomcmd
         ? this.#commandRouter.getI18nString("COMMON.ON")
         : this.#commandRouter.getI18nString("COMMON.OFF"),
     );
@@ -219,7 +226,7 @@ class MusicServerPlugin {
     this.#commandRouter.pushToastMessage(
       "success",
       "Repeat",
-      string == true
+      repeatcmd
         ? this.#commandRouter.getI18nString("COMMON.ON")
         : this.#commandRouter.getI18nString("COMMON.OFF"),
     );

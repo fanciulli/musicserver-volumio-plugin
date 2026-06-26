@@ -7,15 +7,19 @@ const { serviceName } = require("./constants");
  *
  * GitHub: https://github.com/fanciulli
  */
+const { musicProxyPort } = require("./constants");
+
 class MusicServerPlayback {
+  #context;
   #mpdPlugin;
   #commandRouter;
-  #configuration;
+  #logger;
 
-  constructor(mpdPlugin, commandRouter, configuration) {
+  constructor(context, mpdPlugin) {
+    this.#context = context;
     this.#mpdPlugin = mpdPlugin;
-    this.#commandRouter = commandRouter;
-    this.#configuration = configuration;
+    this.#commandRouter = context.coreCommand;
+    this.#logger = context.logger;
   }
 
   clear() {
@@ -48,14 +52,19 @@ class MusicServerPlayback {
       false,
     );
 
-    const trackUri =
-      track["uri"] + "&x-api-key=" + this.#configuration.getApiKey();
+    const index = track["uri"].indexOf("/music");
 
-    return this.#mpdPlugin.sendMpdCommandArray([
-      { command: "clear", parameters: [] },
-      { command: "add", parameters: [trackUri] },
-      { command: "play", parameters: [] },
-    ]);
+    if (index >= 0) {
+      const uriPart = track["uri"].substring(index);
+      const trackUri = `http://localhost:${musicProxyPort}${uriPart}`;
+      this.#logger.info(`Using uri: ${trackUri}`);
+
+      return this.#mpdPlugin.sendMpdCommandArray([
+        { command: "clear", parameters: [] },
+        { command: "add", parameters: [trackUri] },
+        { command: "play", parameters: [] },
+      ]);
+    }
   }
 
   remove(position) {

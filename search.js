@@ -5,8 +5,12 @@
  *
  * GitHub: https://github.com/fanciulli
  */
-const { request } = require("undici");
-const { serviceHumanReadableName, serviceName, UnauthorizedError } = require("./constants");
+const { request, Agent } = require("undici");
+const {
+  serviceHumanReadableName,
+  serviceName,
+  UnauthorizedError,
+} = require("./constants");
 
 class MusicServerSearch {
   #configuration;
@@ -99,6 +103,11 @@ class MusicServerSearch {
       body: JSON.stringify({
         query: query,
         category: category,
+      }),
+      dispatcher: new Agent({
+        connect: {
+          rejectUnauthorized: false,
+        },
       }),
     });
 

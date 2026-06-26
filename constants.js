@@ -17,6 +17,8 @@ const browseSource = {
   albumart: "/albumart?sourceicon=music_service/musicserver/musicserver.svg",
 };
 
+const musicProxyPort = 10000;
+
 class UnauthorizedError extends Error {}
 
 module.exports.serviceHumanReadableName = serviceHumanReadableName;
@@ -24,3 +26,4 @@ module.exports.browseSource = browseSource;
 module.exports.serviceName = serviceName;
 module.exports.serviceUriScheme = serviceUriScheme;
 module.exports.UnauthorizedError = UnauthorizedError;
+module.exports.musicProxyPort = musicProxyPort;
