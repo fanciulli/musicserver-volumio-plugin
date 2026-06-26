@@ -38,6 +38,7 @@
     "kew": "^0.7.0",
     "undici": "6.25.0",
     "v-conf": "^1.4.2",
-    "fastify": "5.8.5"
+    "fastify": "5.8.5",
+    "async-cache-dedupe": "3.4.0"
   }
 }
