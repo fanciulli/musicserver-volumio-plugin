@@ -1,6 +1,6 @@
 {
   "name": "musicserver",
-  "version": "0.1.1",
+  "version": "1.0.0-alpha2",
   "description": "Volumio music_service plugin for browsing a remote Music Server",
   "main": "index.js",
   "scripts": {
@@ -27,7 +27,7 @@
       "bookworm"
     ],
     "details": "Browse a remote Music Server and play tracks through Volumio",
-    "changelog": "0.1.1 Updated dependencies and compatibility"
+    "changelog": "1.0.0-alpha2 Coordinated alpha release\n0.1.1 Updated dependencies and compatibility"
   },
   "engines": {
     "node": ">=20",
